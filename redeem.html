@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <title>點數扣除</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+<body>
+  <h2>❤️ 情侶點數扣除</h2>
+
+  <p>卡片 ID：</p>
+  <input id="cardId" placeholder="掃描後自動填入" readonly />
+
+  <p>扣除點數：</p>
+  <input id="amount" type="number" min="1" value="1" />
+
+  <br /><br />
+  <button onclick="redeem()">確認扣點</button>
+
+  <p id="result"></p>
+
+  <script>
+    // 🔹 手動貼上 Apps Script Web App URL
+    const API_URL = "https://script.google.com/macros/s/AKfycbyzTLn0yJifd0fn7jlX0NHfDI4iGWuijIQB6W1WopBlQOK0Ao-5P26-dcSroOaysprP_A/exec";
+
+    // 🔹 讓你可以用「掃 QR Code 後貼上」
+    if (location.hash) {
+      document.getElementById("cardId").value =
+        decodeURIComponent(location.hash.substring(1));
+    }
+
+    async function redeem() {
+      const cardId = document.getElementById("cardId").value;
+      const amount = document.getElementById("amount").value;
+
+      if (!cardId) {
+        alert("沒有卡片 ID");
+        return;
+      }
+
+      const res = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          card_id: cardId,
+          amount: amount
+        })
+      });
+
+      const data = await res.json();
+      if (data.error) {
+        document.getElementById("result").innerText = "❌ " + data.error;
+      } else {
+        document.getElementById("result").innerText =
+          "✅ 扣點成功，剩餘：" + data.balance;
+      }
+    }
+  </script>
+</body>
+</html>
